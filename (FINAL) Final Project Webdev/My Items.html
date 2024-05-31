@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>UniMart - My Items</title>
+    <link rel="stylesheet" href="style.css">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
+</head>
+<body>
+  <nav class="navbar navbar-expand-lg navbar-light bg-light" style="position: sticky; z-index: 1000; top: 0; background-color: #425172 !important;">
+    <div class="container-fluid">
+      <a class="navbar-brand" href="Home Page - Jio.html"><img src="./resources/U.png"></a>
+      <div class="collapse navbar-collapse" id="navbarNavAltMarkup" style="display: flex; justify-content: space-evenly;">
+        <div class="navbar-nav" style="width: 30%; display: flex; justify-content: space-between;">
+          <a class="nav-link active" aria-current="page" href="Home Page - Jio.html"><img src="./resources/teenyicons_home-solid.png"></a>
+          <a class="nav-link" href="My Items.html"><img src="./resources/streamline_store-1-solid.png"></a>
+          <a class="nav-link" href="Add Page.html"><img src="./resources/icon-park-outline_add.png"></a>
+        </div>
+      </div>
+      <a class="navbar-right" href="My Account.html"><img src="./resources/healthicons_ui-user-profile-outline.png"></a>
+    </div>
+</nav>
+
+  <div class="sidebar">
+    <div class="sidebar-info">
+        <div class="profile">
+          <img src="./resources/healthicons_ui-user-profile-outline.png" alt="Profile Picture" width="50" height="50">
+          <div class="name">Josh Lui</div>
+        </div>
+        <nav>
+          <a href="My Account.html">My Account</a>
+          <a href="My Items.html">My Items</a>
+          <a href="#">Logout</a>
+        </nav>
+    </div>
+  </div>
+
+  <div class="back">
+    <p id = "title1">My Items</p>
+    <p id = "title2">View Owned Items</p>
+  </div>
+  <div class="container">
+      <div class="item-container">
+    </div>
+  </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script>
+      const { createClient } = supabase;
+      const supabase_url = "https://rxjtxyuwkyirgqwgwwff.supabase.co";
+      const supabase_key = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJ4anR4eXV3a3lpcmdxd2d3d2ZmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MTM3NTQxMzUsImV4cCI6MjAyOTMzMDEzNX0.zkvK1Gt1eelpwCnxwUaggDB1s3wPuJdMmmTltAJMMCc";
+      const connection = createClient(supabase_url, supabase_key);
+
+      async function printMyItems() {
+        // Fetch items belonging to the logged-in user
+        const sellerID = 1;
+        // const userID = sessionStorage.getItem('userID');
+        // if (!sellerID) {
+        //   console.error('Seller ID not found');
+        //   return;
+        // }
+
+        let { data, error } = await connection
+          .from('Product')
+          .select();
+          // .eq('seller_id', sellerID); -- If we want it to collect the items owned by a specific SellerID
+
+        if (error) {
+          console.error('Error fetching items:', error.message);
+          return;
+        }
+
+        const container = document.querySelector('.container');
+        container.innerHTML = ''; 
+
+        data.forEach(item => {
+          console.log(item);
+          const itemBox = document.createElement('div');
+          itemBox.className = 'item-box';
+
+          const img = document.createElement('img');
+          img.src = item.image_url || 'https://via.placeholder.com/200x150?text=Image';
+          img.alt = item.name;
+
+          const title = document.createElement('div');
+          title.className = 'title';
+          title.textContent = item.product_name;
+
+          const details = document.createElement('div');
+          details.className = 'details';
+          details.innerHTML = `
+            <p>${item.description || 'No description available'}</p>
+            <p>Price: Php${item.price || 0}</p>
+            <p>Category: ${item.category || 'No category set'}</p>
+            <p>Condition: ${item.condition || 'Unknown Condition'}</p>
+          `;
+
+          const btnContact = document.createElement('button');
+          btnContact.className = 'btn';
+          btnContact.textContent = 'Edit';
+          btnContact.onclick = function() {
+            editDets(item.product_id);
+          };
+
+          const btnContact1 = document.createElement('button');
+          btnContact1.className = 'btn';
+          btnContact1.textContent = 'Delete';
+          btnContact1.onclick = function() {
+            deleteProd(item.product_id)
+          };
+
+          itemBox.appendChild(img);
+          itemBox.appendChild(title);
+          itemBox.appendChild(details);
+          itemBox.appendChild(btnContact);
+          itemBox.appendChild(btnContact1);
+          container.appendChild(itemBox);
+        });
+      }
+      
+      function editDets(id) {
+        localStorage.setItem('idToPass', id);
+        window.location.href = 'Update Item.html';
+      }
+
+      async function deleteProd(productId) {
+        let { error } = await connection
+          .from('Product')
+          .delete()
+          .eq('product_id', productId);
+
+        if (error) {
+          console.error('Error deleting product:', error.message);
+          return;
+        }
+
+        console.log('Product deleted successfully');
+        printMyItems();
+      }
+
+      printMyItems();
+    </script>
+
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.8/dist/umd/popper.min.js" integrity="sha384-I7E8VVD/ismYTF4hNIPjVp/Zjvgyol6VFvRkX/vR+Vc4jQkC+hVqc2pM8ODewa9r" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.min.js" integrity="sha384-0pUGZvbkm6XF6gxjEnlmuGrJXVbNuzT9qBBavbLwCsOGabYfZo0T0to5eqruptLy" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
+</body>
+</html>

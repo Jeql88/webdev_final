@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Edit profile</title>
+    <link rel="stylesheet" href="style.css">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
+</head>
+<body>
+  <nav class="navbar navbar-expand-lg navbar-light bg-light" style="position: sticky; z-index: 1000; top: 0; background-color: #425172 !important;">
+    <div class="container-fluid">
+      <a class="navbar-brand" href="Home Page - Jio.html"><img src="./resources/U.png"></a>
+      <div class="collapse navbar-collapse" id="navbarNavAltMarkup" style="display: flex; justify-content: space-evenly;">
+        <div class="navbar-nav" style="width: 30%; display: flex; justify-content: space-between;">
+          <a class="nav-link active" aria-current="page" href="Home Page - Jio.html"><img src="./resources/teenyicons_home-solid.png"></a>
+          <a class="nav-link" href="My Items.html"><img src="./resources/streamline_store-1-solid.png"></a>
+          <a class="nav-link" href="Add Page.html"><img src="./resources/icon-park-outline_add.png"></a>
+        </div>
+      </div>
+      <a class="navbar-right" href="My Account.html"><img src="./resources/healthicons_ui-user-profile-outline.png"></a>
+    </div>
+</nav>
+
+  <div class="sidebar">
+    <div class="sidebar-info">
+        <div class="profile">
+          <img src="./resources/healthicons_ui-user-profile-outline.png" alt="Profile Picture" width="50" height="50">
+          <div class="name">Josh Lui</div>
+        </div>
+        <nav>
+          <a href="My Account.html">My Account</a>
+          <a href="My Items.html">My Items</a>
+          <a href="#">Logout</a>
+        </nav>
+    </div>
+  </div>
+
+  <div class = "Parent1">
+      <div class="mb-3">
+          <label for="name" class="form-label">Full Name</label>
+          <input type="text" class="form-control" id="full_name" name="Full Name">
+        </div>
+      <div class="mb-3">
+          <label for="price" class="form-label">Email</label>
+          <input type="text" class="form-control" id="email" name="Email">
+      </div>
+      <div class="mb-3">
+          <label for="price" class="form-label">Phone Number</label>
+          <input type="text" class="form-control" id="phone_num" name="Phone Number">
+      </div>
+      <div class="mb-3">
+          <label for="price" class="form-label">Birthday</label>
+          <input type="text" class="form-control" id="birthday" name="Birthday">
+      </div>
+      <div class="mb-3">
+          <label for="price" class="form-label">Address</label>
+          <input type="text" class="form-control" id="address" name="Address">
+      </div>
+
+    <button id="editButton" class="btn btn-primary">Edit</button>
+
+  </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+          const { createClient } = supabase;
+          const supabaseUrl = 'https://rxjtxyuwkyirgqwgwwff.supabase.co';
+          const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJ4anR4eXV3a3lpcmdxd2d3d2ZmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MTM3NTQxMzUsImV4cCI6MjAyOTMzMDEzNX0.zkvK1Gt1eelpwCnxwUaggDB1s3wPuJdMmmTltAJMMCc';
+          const connection = createClient(supabaseUrl, supabaseKey);
+          console.log('hi');
+          const userId = 1;
+          fetchUserProfile(userId);
+    
+          // Function to fetch user profile data and populate the form
+          function fetchUserProfile(userId) {
+            connection
+              .from('User')
+              .select('*')
+              .eq('user_id', userId)
+              .single()
+              .then(response => {
+                if (response.data) {
+                  document.getElementById('full_name').value = response.data.full_name;
+                  document.getElementById('email').value = response.data.email;
+                  document.getElementById('phone_num').value = response.data.phone_num;
+                  document.getElementById('birthday').value = response.data.birthday;
+                  document.getElementById('address').value = response.data.address;
+                } else {
+                  console.error('Error fetching user profile:', response.error);
+                }
+              })
+              .catch(error => {
+                console.error('Error fetching user profile:', error);
+              });
+          }
+    
+          // Function to handle user profile updates
+          function updateUserProfile() {
+            const updatedName = document.getElementById('full_name').value;
+            const updatedEmail = document.getElementById('email').value;
+            const updatedPhoneNum = document.getElementById('phone_num').value;
+            const updatedBirthday = document.getElementById('birthday').value;
+            const updatedAddress = document.getElementById('address').value;
+    
+            connection
+              .from('User')
+              .update({
+                full_name: updatedName,
+                email: updatedEmail,
+                phone_num: updatedPhoneNum,
+                birthday: updatedBirthday,
+                address: updatedAddress,
+              })
+              .eq('user_id', userId)
+              .then(response => {
+                if (response.error) {
+                  console.error('Error updating user profile:', response.error);
+                } else {
+                  console.log('User profile updated successfully');
+                  window.location.href = 'My Account.html';
+                }
+              })
+              .catch(error => {
+                console.error('Error updating user profile:', error);
+              });
+          }
+    
+          document.getElementById('editButton').addEventListener('click', (event) => {
+            event.preventDefault();
+            updateUserProfile();
+          });
+        });
+      </script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.8/dist/umd/popper.min.js" integrity="sha384-I7E8VVD/ismYTF4hNIPjVp/Zjvgyol6VFvRkX/vR+Vc4jQkC+hVqc2pM8ODewa9r" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.min.js" integrity="sha384-0pUGZvbkm6XF6gxjEnlmuGrJXVbNuzT9qBBavbLwCsOGabYfZo0T0to5eqruptLy" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
+</body>
+</html>
